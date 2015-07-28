@@ -37,6 +37,10 @@ typedef enum SRStatusCode : NSInteger {
     SRStatusCodeMessageTooBig = 1009,
 } SRStatusCode;
 
+typedef NS_ENUM(NSInteger, SROptions) {
+    SROptionUseStreamNetworkServiceTypeVoIP = 1 << 0,
+};
+
 @class SRWebSocket;
 
 extern NSString *const SRWebSocketErrorDomain;
@@ -60,6 +64,7 @@ extern NSString *const SRHTTPResponseErrorKey;
 @property (nonatomic, readonly, copy) NSString *protocol;
 
 // Protocols should be an array of strings that turn into Sec-WebSocket-Protocol.
+- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols options:(SROptions)options;
 - (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
 - (id)initWithURLRequest:(NSURLRequest *)request;
 

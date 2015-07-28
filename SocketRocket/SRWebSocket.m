@@ -242,6 +242,8 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
     
     NSArray *_requestedProtocols;
     SRIOConsumerPool *_consumerPool;
+    
+    SROptions _options;
 }
 
 @synthesize delegate = _delegate;
@@ -256,7 +258,7 @@ static __strong NSData *CRLFCRLF;
     CRLFCRLF = [[NSData alloc] initWithBytes:"\r\n\r\n" length:4];
 }
 
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
+- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols options:(SROptions)options;
 {
     self = [super init];
     if (self) {
@@ -266,10 +268,17 @@ static __strong NSData *CRLFCRLF;
         
         _requestedProtocols = [protocols copy];
         
+        _options = options;
+        
         [self _SR_commonInit];
     }
     
     return self;
+}
+
+- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
+{
+    return [self initWithURLRequest:request protocols:protocols options:0];
 }
 
 - (id)initWithURLRequest:(NSURLRequest *)request;
@@ -533,6 +542,11 @@ static __strong NSData *CRLFCRLF;
     CFWriteStreamRef writeStream = NULL;
     
     CFStreamCreatePairWithSocketToHost(NULL, (__bridge CFStringRef)host, port, &readStream, &writeStream);
+    
+    if (_options & SROptionUseStreamNetworkServiceTypeVoIP) {
+        CFReadStreamSetProperty(readStream, kCFStreamNetworkServiceType, kCFStreamNetworkServiceTypeVoIP);
+        CFWriteStreamSetProperty(writeStream, kCFStreamNetworkServiceType, kCFStreamNetworkServiceTypeVoIP);
+    }
     
     _outputStream = CFBridgingRelease(writeStream);
     _inputStream = CFBridgingRelease(readStream);
